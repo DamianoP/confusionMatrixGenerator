@@ -1,72 +1,10 @@
 <html>
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/libs.js"></script>
     <style>
-        .line {
-            width: 147px;
-            height: 47px;
-            border-bottom: 1px solid black;
-            transform: translateY(-45px) translateX(-4px) rotate(45deg);
-            position: absolute;
-            z-index: -1;
-        }
-        body{
-            width: 100%;
-            font-size: 14pt;
-        }
-        .main{
-            width: 100%;
-        }
-        table,td,tr,th{
-            border:0.6pt solid black;
-            border-collapse: collapse;
-        }
-        td{
-            height: 100px;
-            width: 100px;
-        }
-        table{
-            min-width: 300px;
-            min-height: 200px;
-        }
-        td,th{
-            text-align: center;
-        }
-        .good{
-            background-color: #8dff8d;
-        }
-        .bad{
-            background-color: #ff8d8d;
-        }
-        .finalColumn{
-            background-color: #f5f5f5;
-        }
-        .className{
-            background-color: #f5f5f5;
-        }
-        .finalValues{
-            background-color: #e5ffe0;
-        }
-        .tableContainer{
-            margin:20px
-        }
-        .bottom {
-            position: relative;
-            bottom: -33px;
-            left: 6px;
-         }
 
-        .top {
-            position: relative;
-            top: -30px;
-            right: 11px;
-        }
-        .pointer{
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -94,10 +32,8 @@
             let name_pos = address.indexOf(parameter + "=");
             if (name_pos == -1) return 2;
             let substr = address.substring(name_pos);
-            console.log(2);
             let s_start = substr.indexOf("=");
             let s_end = substr.indexOf("&");
-            console.log(2);
             let num=parseInt(substr.substring(s_start + 1, s_end));
             if (!(num > 1)) {
                 num = 2;
@@ -108,13 +44,12 @@
         var nofcl=document.getElementById("numberOfColumn");
         var numClasses=get_par("noc");
         nofcl.value=numClasses;
-        console.log("Classes: "+numClasses);
     </script>
     <div class="tableContainer">
         <table id="CM">
             <thead>
             <tr>
-                <th colspan="100%" class="pointer" contenteditable="true" style="height: 40px">Training set</th>
+                <th colspan="100%" class="pointer" style="height: 40px"><input type="text" id="CMname" value="Training Set"/></th>
             </tr>
             </thead>
             <script>
@@ -122,9 +57,9 @@
 
                 document.write('<tr>');
                 document.write('<td>' +
-                                '<span class="bottom">Output</span>' +
+                                '<span class="bottom">OUTPUT</span>' +
                                 '<div class="line"></div>' +
-                                '<span class="top">Target</span>' +
+                                '<span class="top">TARGET</span>' +
                                 '</td>');
                 for(let i=0;i<numClasses;i++){
                     document.write('<td class="className" id="label'+i+'"></td>');
@@ -134,18 +69,14 @@
                 for(let i=0;i<numClasses;i++){
                     document.write('<tr id="row'+numClasses+'">');
                     //per ogni colonna
-                    document.write('<td class="className pointer" id="name'+i+'" contentEditable="true">Class '+i+'</td>');
+                    document.write('<td class="className pointer"><input type="text" id="name'+i+'" value="Class'+i+'"></td>');
                     for(let j=0;j<numClasses+1;j++){
                         let color="";
-                        if(i==j){
-                            color="good";
-                        }else if(i!=j && j<numClasses){
-                            color="bad";
-                        }else{
-                            color="finalColumn";
-                        }
+                        if(i==j){ color="good";}
+                        else if(i!=j && j<numClasses){ color="bad"; }
+                        else{ color="finalColumn";}
                         document.write('<td class='+color+' id="cell'+i+j+'">');
-                        document.write('<span class="pointer" id="absolute'+i+j+'" contentEditable="true">0</span><br>');
+                        document.write('<input type="text" class="pointer" id="absolute'+i+j+'" value="0"/><br>');
                         document.write('<span id="percentage'+i+j+'">0%</span>');
                         document.write('</td>');
                     }
@@ -154,10 +85,10 @@
                 document.write('<tr><td class="finalColumn">SUM</td>');
                 for(let i=0;i<numClasses;i++){
                     document.write('<td class="finalColumn" id="sumColumn'+i+'">' +
-                        '<span  id="sumColumnAbsolute'+i+'">0</span><br><span id="sumColumnPercentage'+i+'">0%</span>' +
+                        '<span class="customHeight" id="sumColumnAbsolute'+i+'">0</span><br><span id="sumColumnPercentage'+i+'">0%</span>' +
                         '</td>');
                 }
-                document.write(' <td class="finalValues"><span  id="absoluteFinal">0</span><br><span id="percentageFinal">0%</span></td></tr>');
+                document.write(' <td class="finalValues"><span class="customHeight" id="absoluteFinal">0</span><br><span id="percentageFinal">0%</span></td></tr>');
             </script>
         </table>
     </div>
@@ -169,7 +100,6 @@
 
 
 function calculateCF(){
-    console.log("operation completed");
     //per ogni riga
     let totalElement=0;
     let diagonalValue=0;
@@ -179,30 +109,30 @@ function calculateCF(){
         for(let j=0;j<numClasses;j++){
             //row values
             let idAbsolute="absolute"+i+j;
-            let localValue=customParseInt(document.getElementById(idAbsolute).innerHTML);
+            let localValue=customParseInt(document.getElementById(idAbsolute).value);
             rowTotal+=localValue;
             if(i==j){
                 diagonalValue+=localValue;
             }
             totalElement+=localValue;
-
+            //========================
             // columns values
             idAbsolute="absolute"+j+i;
-            localValue=customParseInt(document.getElementById(idAbsolute).innerHTML);
+            localValue=customParseInt(document.getElementById(idAbsolute).value);
             columnTotal+=localValue;
         }
 
         for(let j=0;j<numClasses;j++){
             let idAbsolute="absolute"+i+j;
             let idPercentage="percentage"+i+j;
-            let valueAbsolute=customParseInt(document.getElementById(idAbsolute).innerHTML);
+            let valueAbsolute=customParseInt(document.getElementById(idAbsolute).value);
             let percentage=twoDecimal(100*valueAbsolute/rowTotal/numClasses);
-            document.getElementById(idPercentage).innerHTML=percentage+"%";
-            document.getElementById("absolute"+i+numClasses).innerHTML=rowTotal;
+            document.getElementById(idPercentage).innerHTML=percentage+"%<br><span>&nbsp;</span>";
+            document.getElementById("absolute"+i+numClasses).value=rowTotal;
         }
 
         // last column values
-        let positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).innerHTML)/rowTotal);
+        let positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).value)/rowTotal);
         let negative;
         if(positive==0){
             negative=0;
@@ -212,10 +142,10 @@ function calculateCF(){
         positive="<span style='color: green'>"+positive+"%</span>";
         negative="<span style='color: red'>"+negative+"%</span>";
         document.getElementById("percentage"+i+numClasses).innerHTML=positive+"<br>"+negative;
-        document.getElementById("label"+i).innerHTML=document.getElementById("name"+i).innerHTML;
+        document.getElementById("label"+i).innerHTML=document.getElementById("name"+i).value;
 
         //last row values
-        positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).innerHTML)/columnTotal);
+        positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).value)/columnTotal);
         if(positive==0){
             negative=0;
             if(rowTotal>0) negative=100;
@@ -223,7 +153,7 @@ function calculateCF(){
         else negative=twoDecimal(100-positive);
         positive="<span style='color: green'>"+positive+"%</span>";
         negative="<span style='color: red'>"+negative+"%</span>";
-        document.getElementById("sumColumnAbsolute"+i).innerHTML=columnTotal;
+        document.getElementById("sumColumnAbsolute"+i).innerHTML="<input type='text' value='"+columnTotal+"'>";
         document.getElementById("sumColumnPercentage"+i).innerHTML=positive+"<br>"+negative;
 
     }
@@ -237,12 +167,15 @@ function calculateCF(){
     else negative=twoDecimal(100-percentageFinal);
     percentageFinal="<span style='color: green'>"+percentageFinal+"%</span>";
     negative="<span style='color: red'>"+negative+"%</span>";
-    document.getElementById("absoluteFinal").innerHTML=diagonalValue+" / "+totalElement;
+    document.getElementById("absoluteFinal").innerHTML="<input type='text' value='"+diagonalValue+" / "+totalElement+"'>";;
     document.getElementById("percentageFinal").innerHTML=percentageFinal+"<br>"+negative;
-    let storage=[];
+    /*let storage=[];
     storage[0]=numClasses;
     storage[1]=document.getElementById("CM").innerHTML;
     localStorage.setItem("confusionMatrixBackupv2",JSON.stringify(storage));
+    console.log(storage);
+    */
+    console.log("operation completed");
 }
 function customParseInt(value){
     let x=parseInt(value);
@@ -253,14 +186,17 @@ function twoDecimal(value){
     return customParseInt(100*value)/100;
 }
 function downloadImage(){
+    $('input[type=text]').addClass('paddingTop');
+    let CMname=document.getElementById("CMname").value.toLowerCase().replace(/\s/g, "");
     html2canvas(
         document.querySelector('#CM'),
         {scale:4}
     ).then(function(canvas) {
-        saveAs(canvas.toDataURL("image/png"), 'file-name.png');
+        saveAs(canvas.toDataURL("image/png"), CMname+'.png');
+        $('input[type=text]').removeClass('paddingTop');
     });
-
 }
+
 function saveAs(uri, filename) {
     var link = document.createElement('a');
     if (typeof link.download === 'string') {
@@ -273,16 +209,18 @@ function saveAs(uri, filename) {
         window.open(uri);
     }
 }
-
+/*
 if(localStorage.getItem("confusionMatrixBackupv2")!=null && localStorage.getItem("confusionMatrixBackupv2")!=""){
     let table=JSON.parse(localStorage.getItem("confusionMatrixBackupv2"));
     numClasses=table[0];
     nofcl.value=numClasses;
     document.getElementById("CM").innerHTML=table[1];
 }
+*/
+
 
 setInterval(function (){
-    calculateCF();
+   calculateCF();
 },1000);
 
 </script>
