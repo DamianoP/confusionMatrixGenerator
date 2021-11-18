@@ -1,0 +1,208 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <style>
+        body{
+            width: 100%;
+            font-size: 14pt;
+        }
+        .main{
+            width: 100%;
+        }
+        table,td,tr,th{
+            border:0.6pt solid black;
+            border-collapse: collapse;
+        }
+        td{
+            height: 100px;
+            width: 100px;
+        }
+        table{
+            min-width: 300px;
+            min-height: 200px;
+        }
+        td,th{
+            text-align: center;
+        }
+        .good{
+            background-color: #8dff8d;
+        }
+        .bad{
+            background-color: #ff8d8d;
+        }
+        .finalColumn{
+            background-color: #f5f5f5;
+        }
+        .className{
+            background-color: #f5f5f5;
+        }
+        .finalValues{
+            background-color: #e5ffe0;
+        }
+        .tableContainer{
+            margin:20px
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    Confusion Matrix
+    <br>
+    Draw confusion matrix for
+    <input type="text" id="numberOfColumn" size="2" value="2" onchange="reload_cm()"> classes.
+    <br>
+
+    <script>
+
+        function reload_cm() {
+            var address = window.location.toString();
+            if ((qmp = address.indexOf("?")) + 1) {
+                window.location.href = address.substring(0, qmp) + "?noc=" + nofcl.value;
+            } else {
+                window.location.href = address + "?noc=" + nofcl.value;
+            }
+        }
+        function get_par(parameter) {
+            let address = window.location.toString() + "&";
+            let name_pos = address.indexOf(parameter + "=");
+            if (name_pos == -1) return 2;
+            let substr = address.substring(name_pos);
+            console.log(2);
+            let s_start = substr.indexOf("=");
+            let s_end = substr.indexOf("&");
+            console.log(2);
+            let num=parseInt(substr.substring(s_start + 1, s_end));
+            if (!(num > 1)) {
+                num = 2;
+            }
+            return num;
+        }
+        var nofcl=document.getElementById("numberOfColumn");
+        var numClasses=get_par("noc");
+        nofcl.value=numClasses;
+        console.log("Classes: "+numClasses);
+    </script>
+    <br><br><br>
+    <div class="tableContainer">
+        <table id="CM">
+            <thead>
+            <tr>
+                <th colspan="100%" contenteditable="true">Training set</th>
+            </tr>
+            </thead>
+            <script>
+                //per ogni riga
+                for(let i=0;i<numClasses;i++){
+                    document.write('<tr id="row'+numClasses+'">');
+                    //per ogni colonna
+                    document.write('<td class="className" id="name'+i+'" contentEditable="true">Class '+i+'</td>');
+                    for(let j=0;j<numClasses+1;j++){
+                        let color="";
+                        if(i==j){
+                            color="good";
+                        }else if(i!=j && j<numClasses){
+                            color="bad";
+                        }else{
+                            color="finalColumn";
+                        }
+                        document.write('<td class='+color+' id="cell'+i+j+'">');
+                        document.write('<span id="absolute'+i+j+'" contentEditable="true">0</span><br>');
+                        document.write('<span id="percentage'+i+j+'">0%</span>');
+                        document.write('</td>');
+                    }
+                    document.write('</tr>');
+                }
+                document.write('<tr><td></td>');
+                for(let i=0;i<numClasses;i++){
+                    document.write('<td class="className" id="label'+i+'"></td>');
+                }
+                document.write(' <td class="finalValues"><span  id="absoluteFinal">0</span><br><span id="percentageFinal">0%</span></td></tr>');
+            </script>
+        </table>
+    </div>
+</div>
+<br><br><br><br>
+<button onclick="downloadImage()">Download picture</button>
+<br><br><br>
+<script>
+
+
+function calculateCF(){
+    console.log("operation completed");
+    //per ogni riga
+    let totalElement=0;
+    let diagonalValue=0;
+    for(let i=0;i<numClasses;i++){
+        let rowTotal=0;
+        for(let j=0;j<numClasses;j++){
+            let idAbsolute="absolute"+i+j;
+            let localValue=customParseInt(document.getElementById(idAbsolute).innerHTML);
+            rowTotal+=localValue;
+            if(i==j){
+                diagonalValue+=localValue;
+            }
+            totalElement+=localValue;
+        }
+
+        for(let j=0;j<numClasses;j++){
+            let idAbsolute="absolute"+i+j;
+            let idPercentage="percentage"+i+j;
+            let valueAbsolute=customParseInt(document.getElementById(idAbsolute).innerHTML);
+            let percentage=twoDecimal(100*valueAbsolute/rowTotal/numClasses);
+            document.getElementById(idPercentage).innerHTML=percentage+"%";
+            document.getElementById("absolute"+i+numClasses).innerHTML=rowTotal;
+        }
+        let positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).innerHTML)/rowTotal);
+        let negative=twoDecimal(100-positive);
+        positive="<span style='color: green'>"+positive+"%</span>";
+        negative="<span style='color: red'>"+negative+"%</span>";
+        document.getElementById("percentage"+i+numClasses).innerHTML=positive+"<br>"+negative;
+        document.getElementById("label"+i).innerHTML=document.getElementById("name"+i).innerHTML;
+    }
+
+    let percentageFinal=twoDecimal(100*diagonalValue/totalElement);
+    let negative=twoDecimal(100-percentageFinal);
+    percentageFinal="<span style='color: green'>"+percentageFinal+"%</span>";
+    negative="<span style='color: red'>"+negative+"%</span>";
+    document.getElementById("absoluteFinal").innerHTML=diagonalValue;
+    document.getElementById("percentageFinal").innerHTML=percentageFinal+"<br>"+negative;
+}
+function customParseInt(value){
+    let x=parseInt(value);
+    if(isNaN(x)) x=0;
+    return x;
+}
+function twoDecimal(value){
+    return customParseInt(100*value)/100;
+}
+setInterval(function (){
+    calculateCF();
+},1000);
+
+function downloadImage(){
+    html2canvas(
+        document.querySelector('#CM'),
+        {scale:4}
+    ).then(function(canvas) {
+        saveAs(canvas.toDataURL("image/png"), 'file-name.png');
+    });
+
+}
+function saveAs(uri, filename) {
+    var link = document.createElement('a');
+    if (typeof link.download === 'string') {
+        link.href = uri;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        window.open(uri);
+    }
+}
+</script>
+</body>
+</html>
