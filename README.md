@@ -3,4 +3,4 @@ Live example here: [https://www.damianoperri.it/public/confusionMatrix/index.htm
 
 
 <br><br>
-<img width="600" src="example.png?raw=true">
+<img width="800" src="example.png?raw=true">
