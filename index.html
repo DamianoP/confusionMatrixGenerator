@@ -1,11 +1,10 @@
 <html>
 <head>
+    <meta name="author" content="Damiano Perri">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/libs.js"></script>
-    <style>
-
-    </style>
+    <title>Confusion Matrix Generator</title>
 </head>
 <body>
 <div class="main">
@@ -104,6 +103,11 @@ function calculateCF(){
     let totalElement=0;
     let diagonalValue=0;
     for(let i=0;i<numClasses;i++){
+        for(let j=0;j<numClasses;j++){
+            totalElement+=customParseInt(document.getElementById("absolute"+i+j).value);
+        }
+    }
+    for(let i=0;i<numClasses;i++){
         let rowTotal=0;
         let columnTotal=0;
         for(let j=0;j<numClasses;j++){
@@ -114,7 +118,7 @@ function calculateCF(){
             if(i==j){
                 diagonalValue+=localValue;
             }
-            totalElement+=localValue;
+            //totalElement+=localValue;
             //========================
             // columns values
             idAbsolute="absolute"+j+i;
@@ -126,7 +130,7 @@ function calculateCF(){
             let idAbsolute="absolute"+i+j;
             let idPercentage="percentage"+i+j;
             let valueAbsolute=customParseInt(document.getElementById(idAbsolute).value);
-            let percentage=twoDecimal(100*valueAbsolute/rowTotal/numClasses);
+            let percentage=twoDecimal(100*valueAbsolute/totalElement);
             document.getElementById(idPercentage).innerHTML=percentage+"%<br><span>&nbsp;</span>";
             document.getElementById("absolute"+i+numClasses).value=rowTotal;
         }
