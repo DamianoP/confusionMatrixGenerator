@@ -8,13 +8,21 @@
 </head>
 <body>
 <div class="main">
-    Confusion Matrix
-    <br>
+    Confusion Matrix Generator developed by <a href="https://www.damianoperri.it/">Damiano Perri</a>
+    <br><br>
     Draw confusion matrix for
     <input type="text" id="numberOfColumn" size="2" value="2"> classes.
     <button onclick="reload_cm()">reload</button>
+    <br><br>
+    <button onclick="downloadImage()">Download picture</button>
+    <br><br>
+    <div>
+    1) Set the number of classes and press "reload".<br>
+    2) Click with the mouse on the left cells to set the class names<br>
+    3) Set absolute values<br>
+    4) The matrix will automatically calculate the remaining values and you can save it as a PNG picture by pressing the "Download picture" button<br>
+    </div>
     <br>
-
     <script>
 
         function reload_cm() {
@@ -93,8 +101,6 @@
     </div>
 </div>
 <br><br><br><br>
-<button onclick="downloadImage()">Download picture</button>
-<br><br><br>
 <script>
 
 
