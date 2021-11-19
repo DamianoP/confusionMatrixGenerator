@@ -3,4 +3,6 @@ Live example here: [https://www.damianoperri.it/public/confusionMatrix/index.htm
 
 
 <br><br>
+Example image:
+<br>
 <img style="width:100%" src="example.png?raw=true">
