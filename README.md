@@ -7,3 +7,8 @@ The resulting images are of high resolution and high quality.
 # Example image:
 <br>
 <img style="width:100%" src="example.png?raw=true">
+<br>
+<br>
+The page also generates a second table with some statistical analysis
+<br>
+<img style="width:100%" src="example2.png?raw=true">
