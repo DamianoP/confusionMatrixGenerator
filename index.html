@@ -14,17 +14,16 @@
     <input type="text" id="numberOfColumn" size="2" value="2"> classes.
     <button onclick="reload_cm()">reload</button>
     <br><br>
-    <button onclick="downloadImage()">Download picture</button>
+    <button onclick="downloadImage(1)">Download picture</button>
     <br><br>
     <div>
-    1) Set the number of classes and press "reload".<br>
-    2) Click with the mouse on the left cells to set the class names<br>
-    3) Set absolute values<br>
-    4) The matrix will automatically calculate the remaining values and you can save it as a PNG picture by pressing the "Download picture" button<br>
+        1) Set the number of classes and press "reload".<br>
+        2) Click with the mouse on the left cells to set the class names<br>
+        3) Set absolute values<br>
+        4) The matrix will automatically calculate the remaining values and you can save it as a PNG picture by pressing the "Download picture" button<br>
     </div>
     <br>
     <script>
-
         function reload_cm() {
             localStorage.removeItem("confusionMatrixBackupv2");
             var address = window.location.toString();
@@ -59,180 +58,61 @@
                 <th colspan="100%" class="pointer" style="height: 40px"><input type="text" id="CMname" value="Training Set"/></th>
             </tr>
             </thead>
-            <script>
-                //per ogni riga
-
-                document.write('<tr>');
-                document.write('<td>' +
-                                '<span class="bottom">OUTPUT</span>' +
-                                '<div class="line"></div>' +
-                                '<span class="top">TARGET</span>' +
-                                '</td>');
-                for(let i=0;i<numClasses;i++){
-                    document.write('<td class="className" id="label'+i+'"></td>');
-                }
-                document.write('<td class="finalColumn">SUM</td>');
-                document.write('</tr>');
-                for(let i=0;i<numClasses;i++){
-                    document.write('<tr id="row'+numClasses+'">');
-                    //per ogni colonna
-                    document.write('<td class="className pointer"><input type="text" id="name'+i+'" value="Class'+i+'"></td>');
-                    for(let j=0;j<numClasses+1;j++){
-                        let color="";
-                        if(i==j){ color="good";}
-                        else if(i!=j && j<numClasses){ color="bad"; }
-                        else{ color="finalColumn";}
-                        document.write('<td class='+color+' id="cell'+i+j+'">');
-                        document.write('<input type="text" class="pointer" id="absolute'+i+j+'" value="0"/><br>');
-                        document.write('<span id="percentage'+i+j+'">0%</span>');
-                        document.write('</td>');
+            <tr>
+                <td>
+                    <span class="bottom">OUTPUT</span>
+                    <div class="line"></div>
+                    <span class="top">TARGET</span>
+                </td>
+                <script>
+                    //rows
+                    for(let i=0;i<numClasses;i++){
+                        document.write('<td class="className" id="label'+i+'"></td>');
                     }
-                    document.write('</tr>');
-                }
-                document.write('<tr><td class="finalColumn">SUM</td>');
-                for(let i=0;i<numClasses;i++){
-                    document.write('<td class="finalColumn" id="sumColumn'+i+'">' +
-                        '<span class="customHeight" id="sumColumnAbsolute'+i+'">0</span><br><span id="sumColumnPercentage'+i+'">0%</span>' +
-                        '</td>');
-                }
-                document.write(' <td class="finalValues"><span class="customHeight" id="absoluteFinal">0</span><br><span id="percentageFinal">0%</span></td></tr>');
-            </script>
+                    document.write('<td class="finalColumn">SUM</td>' +
+                        '</tr>');
+                    for(let i=0;i<numClasses;i++){
+                        document.write('<tr id="row'+numClasses+'">' +
+                            '<td class="className pointer">' +
+                            '<input type="text" id="name'+i+'" value="Class'+i+'">' +
+                            '</td>');
+                        for(let j=0;j<numClasses+1;j++){
+                            let color="";
+                            if(i==j){ color="good";}
+                            else if(i!=j && j<numClasses){ color="bad"; }
+                            else{ color="finalColumn";}
+                            document.write('' +
+                                '<td class='+color+' id="cell'+i+j+'">' +
+                                '<input type="text" class="pointer" id="absolute'+i+j+'" value="0"/><br>' +
+                                '<span id="percentage'+i+j+'">0%</span>' +
+                                '</td>');
+                        }
+                        document.write('</tr>');
+                    }
+                    document.write('<tr><td class="finalColumn">SUM</td>');
+                    for(let i=0;i<numClasses;i++){
+                        document.write('' +
+                            '<td class="finalColumn" id="sumColumn'+i+'">' +
+                            '<span class="customHeight" id="sumColumnAbsolute'+i+'">0</span><br>' +
+                            '<span id="sumColumnPercentage'+i+'">0%</span>' +
+                            '</td>');
+                    }
+                </script>
+                <td class="finalValues">
+                    <span class="customHeight" id="absoluteFinal">0</span><br>
+                    <span id="percentageFinal">0%</span>
+                </td>
+            </tr>
         </table>
     </div>
+    <hr>
+    <div>
+        <div>Statistical measures:</div>
+        <button onclick="downloadImage(2)">Download Stats</button>
+        <table id="stats"></table>
+    </div>
 </div>
-<br><br><br><br>
-<script>
-
-
-function calculateCF(){
-    //per ogni riga
-    let totalElement=0;
-    let diagonalValue=0;
-    for(let i=0;i<numClasses;i++){
-        for(let j=0;j<numClasses;j++){
-            totalElement+=customParseInt(document.getElementById("absolute"+i+j).value);
-        }
-    }
-    for(let i=0;i<numClasses;i++){
-        let rowTotal=0;
-        let columnTotal=0;
-        for(let j=0;j<numClasses;j++){
-            //row values
-            let idAbsolute="absolute"+i+j;
-            let localValue=customParseInt(document.getElementById(idAbsolute).value);
-            rowTotal+=localValue;
-            if(i==j){
-                diagonalValue+=localValue;
-            }
-            //totalElement+=localValue;
-            //========================
-            // columns values
-            idAbsolute="absolute"+j+i;
-            localValue=customParseInt(document.getElementById(idAbsolute).value);
-            columnTotal+=localValue;
-        }
-
-        for(let j=0;j<numClasses;j++){
-            let idAbsolute="absolute"+i+j;
-            let idPercentage="percentage"+i+j;
-            let valueAbsolute=customParseInt(document.getElementById(idAbsolute).value);
-            let percentage=twoDecimal(100*valueAbsolute/totalElement);
-            document.getElementById(idPercentage).innerHTML=percentage+"%<br><span>&nbsp;</span>";
-            document.getElementById("absolute"+i+numClasses).value=rowTotal;
-        }
-
-        // last column values
-        let positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).value)/rowTotal);
-        let negative;
-        if(positive==0){
-            negative=0;
-            if(rowTotal>0) negative=100;
-        }
-        else negative=twoDecimal(100-positive);
-        positive="<span style='color: green'>"+positive+"%</span>";
-        negative="<span style='color: red'>"+negative+"%</span>";
-        document.getElementById("percentage"+i+numClasses).innerHTML=positive+"<br>"+negative;
-        document.getElementById("label"+i).innerHTML=document.getElementById("name"+i).value;
-
-        //last row values
-        positive=twoDecimal(100*customParseInt(document.getElementById("absolute"+i+i).value)/columnTotal);
-        if(positive==0){
-            negative=0;
-            if(rowTotal>0) negative=100;
-        }
-        else negative=twoDecimal(100-positive);
-        positive="<span style='color: green'>"+positive+"%</span>";
-        negative="<span style='color: red'>"+negative+"%</span>";
-        document.getElementById("sumColumnAbsolute"+i).innerHTML="<input type='text' value='"+columnTotal+"'>";
-        document.getElementById("sumColumnPercentage"+i).innerHTML=positive+"<br>"+negative;
-
-    }
-
-    let percentageFinal=twoDecimal(100*diagonalValue/totalElement);
-    let negative;
-    if(percentageFinal==0){
-        negative=0;
-        if(totalElement>0) negative=100;
-    }
-    else negative=twoDecimal(100-percentageFinal);
-    percentageFinal="<span style='color: green'>"+percentageFinal+"%</span>";
-    negative="<span style='color: red'>"+negative+"%</span>";
-    document.getElementById("absoluteFinal").innerHTML="<input type='text' value='"+diagonalValue+" / "+totalElement+"'>";;
-    document.getElementById("percentageFinal").innerHTML=percentageFinal+"<br>"+negative;
-    /*let storage=[];
-    storage[0]=numClasses;
-    storage[1]=document.getElementById("CM").innerHTML;
-    localStorage.setItem("confusionMatrixBackupv2",JSON.stringify(storage));
-    console.log(storage);
-    */
-    console.log("operation completed");
-}
-function customParseInt(value){
-    let x=parseInt(value);
-    if(isNaN(x)) x=0;
-    return x;
-}
-function twoDecimal(value){
-    return customParseInt(100*value)/100;
-}
-function downloadImage(){
-    $('input[type=text]').addClass('paddingTop');
-    let CMname=document.getElementById("CMname").value.toLowerCase().replace(/\s/g, "");
-    html2canvas(
-        document.querySelector('#CM'),
-        {scale:4}
-    ).then(function(canvas) {
-        saveAs(canvas.toDataURL("image/png"), CMname+'.png');
-        $('input[type=text]').removeClass('paddingTop');
-    });
-}
-
-function saveAs(uri, filename) {
-    var link = document.createElement('a');
-    if (typeof link.download === 'string') {
-        link.href = uri;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else {
-        window.open(uri);
-    }
-}
-/*
-if(localStorage.getItem("confusionMatrixBackupv2")!=null && localStorage.getItem("confusionMatrixBackupv2")!=""){
-    let table=JSON.parse(localStorage.getItem("confusionMatrixBackupv2"));
-    numClasses=table[0];
-    nofcl.value=numClasses;
-    document.getElementById("CM").innerHTML=table[1];
-}
-*/
-
-
-setInterval(function (){
-   calculateCF();
-},1000);
-
-</script>
+<br><br>
+<script src="js/script.js"></script>
 </body>
 </html>
