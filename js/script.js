@@ -210,4 +210,5 @@ function makeString(name,value,number=true){
         return name+": "+value+"<br>";
 }
 //reloadData();
-autoStart();
+//autoStart();
+calculateCF();
