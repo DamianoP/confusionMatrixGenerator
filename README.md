@@ -1,7 +1,7 @@
 # Confusion Matrix Generator
 Live example here: [https://www.damianoperri.it/public/confusionMatrix/index.html](https://www.damianoperri.it/public/confusionMatrix/index.html)
 
-If you liked this page and you like this project I developed, please cite me in your next paper: <br>
+If you found this page helpful and appreciate the project I have developed, I would be grateful if you could reference my work in your next publication<br>
 <i>Perri, D.; Simonetti, M.; Gervasi, O. Synthetic Data Generation to Speed-Up the Object Recognition Pipeline. Electronics 2022, 11, 2. <a href="https://doi.org/10.3390/electronics11010002">https://doi.org/10.3390/electronics11010002</a></i>
 
 This page allows you to create confusion matrices and obtain a usable image in papers.<br>
