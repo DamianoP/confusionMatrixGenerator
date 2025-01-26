@@ -1,26 +1,47 @@
-<html>
+
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="author" content="Damiano Perri">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/libs.js"></script>
+    <meta name="keywords" content="Damiano Perri, Confusion Matrix Generator, Confusion Matrices, Machine Learning, Papers, Data analysis, Open Source, GitHUB, Git Hub, Artificial Intelligence, Classification Models, University of Perugia, Unipg, Università degli studi di Perugia, Damiano, Perri">
+    <meta name="description" content="This page allows you to create confusion matrices and obtain a usable image in papers, the resulting images are of high resolution and high quality.">
+    <meta name="author" content="Damiano Perri">
+    <meta name="robots" content="index, follow">
+    <link rel="stylesheet" href="css/bootstrap.min.css?ver=20241202">
+    <link rel="stylesheet" href="css/style.css?ver=20241202">
+    <script src="js/libs.js?ver=20241202"></script>
     <title>Confusion Matrix Generator</title>
 </head>
 <body>
 <div class="main">
-    Confusion Matrix Generator developed by <a href="https://www.damianoperri.it/">Damiano Perri</a>
-    <br><br>
+    <hr>
+    <span style="font-weight: bold">Confusion Matrix Generator</span> developed by Dr. <a href="https://scholar.google.com/citations?user=MYZughYAAAAJ&hl=it" target="_blank">Damiano Perri</a>, Phd, Adjunct Professor at the University of Perugia
+    <br>
+    <hr>
+    <div id="description">
+        This page enables the creation of confusion matrices and the generation of high-resolution, high-quality images suitable for inclusion in academic papers.
+        <br>
+        The page also calculates many statistics of crucial importance during data analysis.<br>
+        All calculations are performed locally within your browser, ensuring that no data is transmitted to the server.<br>
+        No data you enter will be stored, retained or saved.<br><br>
+        If you found this page useful and appreciate the project I have developed, I kindly ask that you reference the work for which this tool was created in your next publication:<br>
+        <i>Perri, D.; Simonetti, M.; Gervasi, O. Synthetic Data Generation to Speed-Up the Object Recognition Pipeline. Electronics 2022, 11, 2. <a href="https://doi.org/10.3390/electronics11010002" target="_blank">https://doi.org/10.3390/electronics11010002</a></i>
+
+
+    </div>
+    <hr>
+    <br>
     Draw confusion matrix for
-    <input type="text" id="numberOfColumn" size="2" value="2"> classes.
-    <button onclick="reload_cm()">reload</button>
-    <br><br>
-    <button onclick="downloadImage(1)">Download picture</button>
+    <input type="text" id="numberOfColumn" size="2" value="2"> classes.<br>
+    <button onclick="reload_cm()">Apply</button>
     <br><br>
     <div>
-        1) Set the number of classes and press "reload".<br>
+        1) &uarr;&uarr; Set the number of classes and press "apply" &uarr;&uarr;<br>
         2) Click with the mouse on the left cells to set the class names<br>
         3) Set absolute values<br>
         4) The matrix will automatically calculate the remaining values and you can save it as a PNG picture by pressing the "Download picture" button<br>
+
+        Numerical precision: <input onchange="changePrecision()" id="CFprecision" type="number" class="inputStyled" value="2"><br>
     </div>
     <br>
     <script>
@@ -51,45 +72,51 @@
         var numClasses=get_par("noc");
         nofcl.value=numClasses;
     </script>
+
+    <button onclick="downloadImage(1)">Download picture</button>
+    <br><br>
     <div class="tableContainer">
         <table id="CM" onchange="calculateCF()">
             <thead>
             <tr>
-                <th colspan="100%" class="pointer" style="height: 40px"><input type="text" id="CMname" value="Training Set"/></th>
+                <th colspan="100%" class="pointer" style="height: 40px"><input type="text" style="width:100%" id="CMname" value="Training Set"/></th>
             </tr>
             </thead>
             <tr>
-                <td>
-                    <span class="bottom">OUTPUT</span>
+                <td style="overflow: hidden">
+                    <span class="bottom"><input class="pointer" type="text" value="OUTPUT"></input></span>
                     <div class="line"></div>
-                    <span class="top">TARGET</span>
+                    <span class="top"><input class="pointer" type="text" value="TARGET"></input></span>
                 </td>
                 <script>
                     //rows
                     for(let i=0;i<numClasses;i++){
                         document.write('<td class="className" id="label'+i+'"></td>');
                     }
-                    document.write('<td class="finalColumn">SUM</td>' +
-                        '</tr>');
+                    document.write('<td class="finalColumn"><input class="pointer" type="text" value="SUM"></input></td></tr>');   
                     for(let i=0;i<numClasses;i++){
                         document.write('<tr id="row'+numClasses+'">' +
                             '<td class="className pointer">' +
                             '<input type="text" id="name'+i+'" value="Class'+i+'">' +
                             '</td>');
-                        for(let j=0;j<numClasses+1;j++){
+                        for(let j=0;j<numClasses;j++){
                             let color="";
                             if(i==j){ color="good";}
                             else if(i!=j && j<numClasses){ color="bad"; }
-                            else{ color="finalColumn";}
                             document.write('' +
                                 '<td class='+color+' id="cell'+i+j+'">' +
-                                '<input type="text" class="pointer" id="absolute'+i+j+'" value="0"/><br>' +
+                                '<input type="number" class="pointer" id="absolute'+i+j+'" value="0"/><br>' +
                                 '<span id="percentage'+i+j+'">0%</span>' +
                                 '</td>');
                         }
-                        document.write('</tr>');
-                    }
-                    document.write('<tr><td class="finalColumn">SUM</td>');
+                        document.write('' +
+                            '<td class="finalColumn" id="cell'+i+numClasses+'">' +
+                                '<input disabled type="number" class="pointer" id="absolute'+i+numClasses+'" value="0"/><br>' +
+                                '<span id="percentage'+i+numClasses+'">0%</span>' +
+                                '</td>' +
+                            '</tr>');
+                    }                        
+                    document.write('<tr><td class="finalColumn"><input class="pointer" type="text" value="SUM"></input></td>');   
                     for(let i=0;i<numClasses;i++){
                         document.write('' +
                             '<td class="finalColumn" id="sumColumn'+i+'">' +
@@ -108,11 +135,78 @@
     <hr>
     <div>
         <div>Statistical measures:</div>
-        <button onclick="downloadImage(2)">Download Stats</button>
+        Numerical precision: <input onchange="changeStatPrecision()" id="statprecision" type="number" class="inputStyled" size="1" value="4"><br><br>
+        <button onclick="downloadImage(2)">Download stats picture</button><br>
         <table id="stats"></table>
     </div>
+    <br>
+    <hr>
+    <br>
+    <div>
+        <table>
+            <tr>
+                <td colspan="2">List of the formulas used</td>
+            </tr>
+            <tr>
+                <td>Precision</td>
+                <td>TP  <br>
+                    <hr class="divisionHR">
+                    (TP + FP)</td>
+            </tr>
+            <tr>
+                <td>Recall <br><small>also called Sensitivity</small></td>
+                <td>TP <br>
+                    <hr class="divisionHR">
+                    (TP + FN)</td>
+            </tr>
+            <tr>
+                <td>F1 Score</td>
+                <td>2*Precision*Recall <br>
+                    <hr class="divisionHR">
+                    Precision + Recall
+                </td>
+            </tr>
+            <tr>
+                <td>Macro-F1</td>
+                <td>
+                    average of F1 Scores
+                </td>
+            </tr>
+            <tr>
+                <td>Weighted-F1</td>
+                <td>
+                    weighted-averaged of F1 Scores
+                </td>
+            </tr>
+            <tr>
+                <td>Misclassification Rate</td>
+                <td>
+                    # incorrect predictions  <br>
+                    <hr class="divisionHR"> # total predictions
+                </td>
+            </tr>
+            <!--
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            -->
+        </table>
+    </div>
+</div>
+<hr>
+<div style="margin:auto;text-align: center;">
+    <br><br>
+    The code is available on GitHub
+    <a href="https://github.com/DamianoP/confusionMatrixGenerator" target="_blank">
+        <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true" class="octicon octicon-mark-github">
+        <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+    </svg>
+    </a>
 </div>
 <br><br>
-<script src="js/script.js"></script>
+<br><br>
+<script src="js/script.js?ver=2"></script>
+
 </body>
 </html>
