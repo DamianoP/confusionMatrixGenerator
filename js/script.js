@@ -23,14 +23,17 @@ function analyzeTable(){
     }
     return [absoluteCounter,diagonalCounter,rowTotal,columnTotal];
 }
+
 function calculateCF(){
     let statsString="<tr>" +
         makeCell("Class Name","className",false)+
         makeCell("Precision","className",false)+
         makeCell("1-Precision","className",false)+
         makeCell("Recall","className",false)+
-        makeCell("1-Recall","className",false)+
+        makeCell("False Negative Rate (FNR)","className",false)+
         makeCell("F1 score","className",false)+
+        makeCell("Specificity (TNR)","className",false)+
+        makeCell("False Positive Rate (FPR)","className",false)+
         "</tr>";
     let values=analyzeTable();
     let totalElement=values[0];
@@ -44,6 +47,7 @@ function calculateCF(){
         let columnTotal=columns[i];
         let className=getValue("name"+i);
         statsString+="<tr><td class='className'>"+className+"</td>";
+        let classCount=customParseInt(getValue("absolute"+i+i));
         for(let j=0;j<numClasses;j++){
             let idAbsolute="absolute"+i+j;
             let idPercentage="percentage"+i+j;
@@ -56,34 +60,33 @@ function calculateCF(){
             setValue("absolute"+i+numClasses,rowTotal);
         }
 
-        // last column values
-        let precision=customParseInt(getValue("absolute"+i+i))/columnTotal;
+        // --- CALCOLO RECALL (Sensitivity) ---
+        let recall=classCount/columnTotal;
         let negative;     
         let negativeBottom;   
-        if(isNaN(precision)){
-            precision=0;
-        }
-        if(precision==0){
-            negative=0;
-            if(columnTotal>0) negative=1;
-        }
-        else negative=1-precision;
-        negativeBottom=negative;
-        
-        statsString+=makeCell(precision);
-        statsString+=makeCell(negative);
-
-        //last row values
-        let recall=customParseInt(getValue("absolute"+i+i))/rowTotal;
-        negative=0;
         if(isNaN(recall)){
             recall=0;
         }
         if(recall==0){
-            negative=1;
-            if(rowTotal>0) {recall=0;}
+            negative=0;
+            if(columnTotal>0) negative=1;
         }
         else negative=1-recall;
+        
+        // Salviamo il False Negative Rate (1-Recall) in negativeBottom
+        negativeBottom=negative; 
+
+        // --- CALCOLO PRECISION ---
+        let precision=classCount/rowTotal;
+        negative=0;
+        if(isNaN(precision)){
+            precision=0;
+        }
+        if(precision==0){
+            negative=1;
+            if(rowTotal>0) {precision=0;}
+        }
+        else negative=1-precision; 
 
         if (rowTotal==0){
             negative=0;
@@ -94,16 +97,24 @@ function calculateCF(){
         setHTML("label"+i,className);
 
 
-
+        // --- CREAZIONE RIGHE TABELLA ---
+        statsString+=makeCell(precision);
+        statsString+=makeCell(negative); // (1 - Precision)
         statsString+=makeCell(recall);
-        statsString+=makeCell(negative);
-
-
+        
+        // negativeBottom che contiene il False Negative Rate (1-Recall)
+        statsString+=makeCell(negativeBottom); 
 
         positive="<span style='color: green'>"+trimDecimals(100*precision)+"%</span>";
-        negative="<span style='color: red'>"+trimDecimals(100*negativeBottom)+"%</span>";
+        // negativeBottom Ã¨ (1-Recall), ma per la colonna somma in basso vogliamo (1-Recall) o (1-Precision)?
+        // Solitamente nella matrice visuale:
+        // Colonna finale (destra) = Precision e 1-Precision
+        // Riga finale (basso) = Recall e 1-Recall
+        let negativeForColumnSum = negativeBottom; 
+        let negativeHtml="<span style='color: red'>"+trimDecimals(100*negativeForColumnSum)+"%</span>";
         setHTML("sumColumnAbsolute"+i,"<input disabled type='text' value='"+columnTotal+"'>");
-        setHTML("sumColumnPercentage"+i,positive+"<br>"+negative);
+        setHTML("sumColumnPercentage"+i,positive+"<br>"+negativeHtml);
+        
         let f1Score=0;
         if(precision+recall>0){
             f1Score=2*(precision*recall)/(precision+recall);             
@@ -111,7 +122,34 @@ function calculateCF(){
         macroF1+=f1Score;
         weightedF1+=(f1Score*rowTotal);
         console.log("weightedF1: "+f1Score+" * "+rowTotal+" = "+weightedF1);
-        statsString+=makeCell(f1Score)+"<tr>";
+        statsString+=makeCell(f1Score);
+
+        // --- CALCOLO SPECIFICITY e FPR ---
+        let TN = totalElement-columnTotal-(rowTotal-classCount);
+        
+        // FP deriva dalle righe (Predicted) meno i True Positive
+        let FP = rowTotal - classCount; 
+        
+        // La Specificity Ã¨ TN / (TN + FP) cioÃ¨ TN / (Tutti i Negativi Reali)
+        let specificityDenominator = TN + FP;
+        let specificity = 0;
+        
+        if(specificityDenominator > 0){
+             specificity = TN / specificityDenominator;
+        } else {
+             specificity = 0; // O 1, dipende da come gestire il caso limite divisione per zero
+        }
+        
+        if(isNaN(specificity)){
+            specificity=0;
+        }
+        let FPR = 1-specificity;
+        statsString+=makeCell(specificity);
+        statsString+=makeCell(FPR);
+
+        statsString+="</tr><tr>";
+
+        let TNR = TN/(totalElement-columnTotal); 
     }
 
     let accuracy=diagonalValue/totalElement;
@@ -133,21 +171,24 @@ function calculateCF(){
     }else{
         weightedF1=weightedF1/totalElement;
     }
-    statsString+="<tr>" +
+    let span=0;
+    statsString+="</tr>";
+    let statsString2="<tr>" +
         makeCell("Accuracy","className",false)+
-        makeCell(accuracy,"",true,5)+
+        makeCell(accuracy,"",true,span)+
         "</tr>" +
         "<tr>" +
         makeCell("Misclassification Rate","className",false)+
-        makeCell(negative,"",true,5)+
+        makeCell(negative,"",true,span)+
         "</tr>"+
         "<tr>" +
         makeCell("Macro-F1","className",false)+
-        makeCell(macroF1/numClasses,"",true,5)+
+        makeCell(macroF1/numClasses,"",true,span)+
         "</tr>"+
         "<tr>"+
         makeCell("Weighted-F1","className",false)+
-        makeCell(weightedF1,"",true,5)+
+        makeCell(weightedF1,"",true,span)+
+
     "</tr>";
 
 
@@ -156,7 +197,8 @@ function calculateCF(){
     setHTML("absoluteFinal","<input disabled type='text' value='"+diagonalValue+" / "+totalElement+"'>");
     setHTML("percentageFinal",percentageFinal+"<br>"+negative);
     //backupData();
-    printStats(statsString);
+    printStats(statsString,0);
+    printStats(statsString2,1);
     console.log("operation completed");
 }
 function customParseInt(value){
@@ -176,6 +218,9 @@ function downloadImage(i){
     }else if(i==2){
         CMname+="stats";
         id="#stats";
+    }else if(i==3){
+        CMname+="stats2";
+        id="#stats2";
     }else{
 
     }
@@ -228,8 +273,16 @@ function setHTML(id,value){
 function setValue(id,value){
     document.getElementById(id).value=value;
 }
-function printStats(data){
-    stats.innerHTML=data;
+function printStats(data,t){
+    if(t==0){
+        stats=document.getElementById("stats");
+        stats.innerHTML=data;
+    }
+    else if(t==1){
+        stats=document.getElementById("stats2");
+        stats.innerHTML=data;
+    }
+    console.log(data);
 }
 function customDecimal(value,numberOfDigit){
     //let x=10**numberOfDigit;
