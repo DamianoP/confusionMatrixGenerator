@@ -92,7 +92,7 @@ function calculateCF(){
             negative=0;
         }
         let negativeRight="<span style='color: red'>"+trimDecimals(100*negative)+"%</span>";
-        let positive="<span style='color: green'>"+trimDecimals(100*recall)+"%</span>";
+        let positive="<span style='color: green'>"+trimDecimals(100*precision)+"%</span>";
         setHTML("percentage"+i+numClasses,positive+"<br>"+negativeRight);
         setHTML("label"+i,className);
 
@@ -105,8 +105,8 @@ function calculateCF(){
         // negativeBottom che contiene il False Negative Rate (1-Recall)
         statsString+=makeCell(negativeBottom); 
 
-        positive="<span style='color: green'>"+trimDecimals(100*precision)+"%</span>";
-        // negativeBottom Ã¨ (1-Recall), ma per la colonna somma in basso vogliamo (1-Recall) o (1-Precision)?
+        positive="<span style='color: green'>"+trimDecimals(100*recall)+"%</span>";
+        // negativeBottom è (1-Recall), ma per la colonna somma in basso vogliamo (1-Recall) o (1-Precision)?
         // Solitamente nella matrice visuale:
         // Colonna finale (destra) = Precision e 1-Precision
         // Riga finale (basso) = Recall e 1-Recall
@@ -130,7 +130,7 @@ function calculateCF(){
         // FP deriva dalle righe (Predicted) meno i True Positive
         let FP = rowTotal - classCount; 
         
-        // La Specificity Ã¨ TN / (TN + FP) cioÃ¨ TN / (Tutti i Negativi Reali)
+        // La Specificity è TN / (TN + FP) cioè TN / (Tutti i Negativi Reali)
         let specificityDenominator = TN + FP;
         let specificity = 0;
         
